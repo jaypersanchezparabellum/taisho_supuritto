@@ -1,8 +1,6 @@
 var Web3 = require('web3');
 var fs = require('fs')
 const BigNumber = require('bignumber.js');
-//const oneSplitABI = require('./OneSplit.json');
-//const erc20ABI = require('./ERC20.json');
 
 const erc20contractJSON = fs.readFileSync('./ERC20.json')
 const onesplitcontractJSON = fs.readFileSync('./OneSplit.json')
@@ -36,12 +34,11 @@ oneSplitDexes = [
     "UniswapAave"
 ];
 
-const myBTCtokenAddress = '32MPs4xM93EsYteW8taYDBZPrtdfFiXPkP';
+/*const myBTCtokenAddress = '32MPs4xM93EsYteW8taYDBZPrtdfFiXPkP';
 const myETHtokenAddress = '0xa0eCE7ba3e5d1B0fa31cA5011dCd8982C91dab01';
 const myDAItokenAddress = '0x82E77A063BA904092CD4aD6aA8ff33eF1d1b3150';
-
 const tokenAddress0 = '0xEe2b685C332c455b6238394f679B94Ae72c3f084';
-const tokenAddress1 = '0xB81E2CCCB216A582C6EE9aE34c90D8d1702d29e3';
+const tokenAddress1 = '0xB81E2CCCB216A582C6EE9aE34c90D8d1702d29e3';*/
 
 
 /*
@@ -54,7 +51,7 @@ const tokenAddress1 = '0xB81E2CCCB216A582C6EE9aE34c90D8d1702d29e3';
 *   @parts: is used to describe along which platforms the place is distributed. Check the distribution return value for more details but we’ll use by default 100.
 *   @disableFlags: enables you to pass option to the function, for example, disabling a specific DEX
 */
-async function getQuote(fromToken, toToken, amount) {
+async function getQuote(fromToken, toToken, amount, callback) {
     let quote = null;
     try {
         quote = await onesplitContract.methods.getExpectedReturn(fromToken, toToken, amount, 100, 0).call();
@@ -78,9 +75,10 @@ async function getQuote(fromToken, toToken, amount) {
         }
         
     }
+    return callback(quote)
 }
 
-/*function approveToken(tokenInstance, receiver, amount) {
+function approveToken(tokenInstance, receiver, amount) {
     tokenInstance.methods.approve(receiver, amount).send({ from: fromAddress }, async function(error, txHash) {
         if (error) {
             console.log("ERC20 could not be approved", error);
@@ -93,7 +91,7 @@ async function getQuote(fromToken, toToken, amount) {
             return;
         }
     })
-}*/
+}
 
 async function waitTransaction(txHash) {
     let tx = null;
