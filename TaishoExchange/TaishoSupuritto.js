@@ -7,12 +7,18 @@ const onesplitcontractJSON = fs.readFileSync('./OneSplit.json')
 const erc20ABI = JSON.parse(erc20contractJSON);
 const oneSplitABI = JSON.parse(onesplitcontractJSON)
 
-const onesplitAddress = "0xC586BeF4a0992C495Cf22e1aeEE4E446CECDee0E"; // 1plit contract address on Main net
-const daiAddress = "0x6b175474e89094c44da98b954eedeac495271d0f"; // DAI ERC20 contract address on Main net
-const fromAddress = "0x4d10ae710Bd8D1C31bd7465c8CBC3add6F279E81";
-const fromToken = daiAddress;
+// 1plit contract address on Main net
+const onesplitAddress = "0xC586BeF4a0992C495Cf22e1aeEE4E446CECDee0E"; 
+// DAI ERC20 contract address on Main net
+const daiAddress = "0x6b175474e89094c44da98b954eedeac495271d0f"; 
+//This is a Chainlink token address USDC ERC20 contract address on Main net
+const usdcAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA";
+//This address is from Ganache but forked from Ethscan Mainnet chainlink address
+const fromAddress = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1";
+const fromToken = usdcAddress; //this is chainlink SC address
 const fromTokenDecimals = 18;
-const toToken = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'; // ETH
+//ETH
+const toToken = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 const toTokenDecimals = 18;
 const amountToExchange = new BigNumber(1000);
 const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'));
@@ -97,7 +103,8 @@ async function waitTransaction(txHash) {
     let tx = null;
     while (tx == null) {
         tx = await web3.eth.getTransactionReceipt(txHash);
-        await sleep(2000);
+        //await sleep(2000);
+        //setTimeout(() => {  console.log("Transaction Done!"); }, 2000);
     }
     console.log("Transaction " + txHash + " was mined.");
     return (tx.status);
@@ -110,11 +117,11 @@ async function waitTransaction(txHash) {
 *   2. Get approval from 1inch dex aggregator to spend our token
 *   3. Perform actual Swap which is done within approveToken function
 */
-let _amountToExchange = '1000000000000000000';
+let _amountToExchange = '10000000000000000000';
 let amountWithDecimals = new BigNumber(_amountToExchange).shiftedBy(fromTokenDecimals).toFixed();
 
 //getQuote without approval
-getQuote(fromToken, toToken, amountWithDecimals, async function(quote) {
+/*getQuote(fromToken, toToken, amountWithDecimals, async function(quote) {
     let ethBalanceBefore = await web3.eth.getBalance(fromAddress);
     let daiBalanceBefore = await daiToken.methods.balanceOf(fromAddress).call();
     onesplitContract.methods.swap(fromToken, toToken, amountWithDecimals, quote.returnAmount, quote.distribution, 0)
@@ -131,15 +138,17 @@ getQuote(fromToken, toToken, amountWithDecimals, async function(quote) {
         console.log("Change in ETH balance", new BigNumber(ethBalanceAfter).minus(ethBalanceBefore).shiftedBy(-fromTokenDecimals).toFixed(2));
         console.log("Change in DAI balance", new BigNumber(daiBalanceAfter).minus(daiBalanceBefore).shiftedBy(-fromTokenDecimals).toFixed(2));
     });
-});
+});*/
 
 //getQuote with approval
-/*getQuote(fromToken, toToken, amountWithDecimals, function(quote) {
+getQuote(fromToken, toToken, amountWithDecimals, function(quote) {
     approveToken(daiToken, onesplitAddress, amountWithDecimals, async function() {
         // We get the balance before the swap just for logging purpose
         console.log(`Getting Approval`)
         let ethBalanceBefore = await web3.eth.getBalance(fromAddress);
+        console.log(`ETH Balance Before: `, ethBalanceBefore);
         let daiBalanceBefore = await daiToken.methods.balanceOf(fromAddress).call();
+        console.log(`DAI  Balance Before: `, daiBalanceBefore);
         onesplitContract.methods.swap(fromToken, toToken, amountWithDecimals, quote.returnAmount, quote.distribution, 0).send({ from: fromAddress, gas: 8000000 }, async function(error, txHash) {
             if (error) {
                 console.log("Could not complete the swap", error);
@@ -149,9 +158,10 @@ getQuote(fromToken, toToken, amountWithDecimals, async function(quote) {
             // We check the final balances after the swap for logging purpose
             let ethBalanceAfter = await web3.eth.getBalance(fromAddress);
             let daiBalanceAfter = await daiToken.methods.balanceOf(fromAddress).call();
+            console.log("Final Status: ", status)
             console.log("Final balances:")
             console.log("Change in ETH balance", new BigNumber(ethBalanceAfter).minus(ethBalanceBefore).shiftedBy(-fromTokenDecimals).toFixed(2));
             console.log("Change in DAI balance", new BigNumber(daiBalanceAfter).minus(daiBalanceBefore).shiftedBy(-fromTokenDecimals).toFixed(2));
         });
     });
-});*/
+});
