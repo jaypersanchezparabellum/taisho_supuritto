@@ -34,11 +34,11 @@ oneSplitDexes = [
     "UniswapAave"
 ];
 
-/*const myBTCtokenAddress = '32MPs4xM93EsYteW8taYDBZPrtdfFiXPkP';
+const myBTCtokenAddress = '32MPs4xM93EsYteW8taYDBZPrtdfFiXPkP';
 const myETHtokenAddress = '0xa0eCE7ba3e5d1B0fa31cA5011dCd8982C91dab01';
 const myDAItokenAddress = '0x82E77A063BA904092CD4aD6aA8ff33eF1d1b3150';
 const tokenAddress0 = '0xEe2b685C332c455b6238394f679B94Ae72c3f084';
-const tokenAddress1 = '0xB81E2CCCB216A582C6EE9aE34c90D8d1702d29e3';*/
+const tokenAddress1 = '0xB81E2CCCB216A582C6EE9aE34c90D8d1702d29e3';
 
 
 /*
@@ -108,11 +108,33 @@ async function waitTransaction(txHash) {
 *   The function below is the full flow.  
 *   1. Call getQuote to get the best price
 *   2. Get approval from 1inch dex aggregator to spend our token
-*   3. Perform actual Swap
+*   3. Perform actual Swap which is done within approveToken function
 */
-let _amountToExchange = '1000000000000000000'
-let amountWithDecimals = new BigNumber(_amountToExchange).shiftedBy(fromTokenDecimals).toFixed()
-getQuote(fromToken, toToken, amountWithDecimals, function(quote) {
+let _amountToExchange = '1000000000000000000';
+let amountWithDecimals = new BigNumber(_amountToExchange).shiftedBy(fromTokenDecimals).toFixed();
+
+//getQuote without approval
+getQuote(fromToken, toToken, amountWithDecimals, async function(quote) {
+    let ethBalanceBefore = await web3.eth.getBalance(fromAddress);
+    let daiBalanceBefore = await daiToken.methods.balanceOf(fromAddress).call();
+    onesplitContract.methods.swap(fromToken, toToken, amountWithDecimals, quote.returnAmount, quote.distribution, 0)
+    .send({ from: fromAddress, gas: 8000000 }, async function(error, txHash) {
+        if (error) {
+            console.log("Could not complete the swap", error);
+            return;
+        }
+        const status = await waitTransaction(txHash);
+        // We check the final balances after the swap for logging purpose
+        let ethBalanceAfter = await web3.eth.getBalance(fromAddress);
+        let daiBalanceAfter = await daiToken.methods.balanceOf(fromAddress).call();
+        console.log("Final balances:")
+        console.log("Change in ETH balance", new BigNumber(ethBalanceAfter).minus(ethBalanceBefore).shiftedBy(-fromTokenDecimals).toFixed(2));
+        console.log("Change in DAI balance", new BigNumber(daiBalanceAfter).minus(daiBalanceBefore).shiftedBy(-fromTokenDecimals).toFixed(2));
+    });
+});
+
+//getQuote with approval
+/*getQuote(fromToken, toToken, amountWithDecimals, function(quote) {
     approveToken(daiToken, onesplitAddress, amountWithDecimals, async function() {
         // We get the balance before the swap just for logging purpose
         console.log(`Getting Approval`)
@@ -132,4 +154,4 @@ getQuote(fromToken, toToken, amountWithDecimals, function(quote) {
             console.log("Change in DAI balance", new BigNumber(daiBalanceAfter).minus(daiBalanceBefore).shiftedBy(-fromTokenDecimals).toFixed(2));
         });
     });
-});
+});*/
