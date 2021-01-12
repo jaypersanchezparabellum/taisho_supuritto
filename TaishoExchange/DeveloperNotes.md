@@ -61,4 +61,5 @@ truffle(develop)> web3.utils.fromWei(balance1, "ether")
 5. web3.eth.getTransactionReceipt(tx) : retrieve transaction receipt from tx
 6. web3.toAscii : convert bytes32 to String
 
+
   
