@@ -12,6 +12,7 @@ const onesplitAddress = "0xC586BeF4a0992C495Cf22e1aeEE4E446CECDee0E";
 // DAI ERC20 contract address on Main net
 const daiAddress = "0x6b175474e89094c44da98b954eedeac495271d0f"; 
 //This is a Chainlink token address USDC ERC20 contract address on Main net
+//0x98c63b7b319dfbdf3d811530f2ab9dfe4983af9d
 const usdcAddress = "0x514910771AF9Ca656af840dff83E8264EcF986CA";
 //This address is from Ganache but forked from Ethscan Mainnet chainlink address
 const fromAddress = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1";
@@ -20,7 +21,7 @@ const fromTokenDecimals = 18;
 //ETH
 const toToken = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 const toTokenDecimals = 18;
-const amountToExchange = new BigNumber(1000);
+const amountToExchange = new BigNumber(1);
 const web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'));
 const onesplitContract = new web3.eth.Contract(oneSplitABI, onesplitAddress);
 const daiToken = new web3.eth.Contract(erc20ABI, fromToken);

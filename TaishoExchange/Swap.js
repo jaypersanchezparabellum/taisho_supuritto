@@ -56,6 +56,7 @@ const senderAddress = "0xf584F8728B874a6a5c7A8d4d387C9aae9172D621"
 //replace this address from an address in Ganache CLI
 const receiverAddress = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"
 
+
 Token.methods.balanceOf(senderAddress).call(function(err, res) {
     if (err) {
         console.log("An error occured", err);
